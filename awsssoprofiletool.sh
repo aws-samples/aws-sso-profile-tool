@@ -49,7 +49,7 @@ fi
 echo
 echo -n "Registering client... "
 
-out=`aws sso-oidc register-client --client-name 'test' --client-type 'public' --region $1 --output text`
+out=`aws sso-oidc register-client --client-name 'profiletool' --client-type 'public' --region $1 --output text`
 
 if [ $? -ne 0 ];
 then
@@ -104,6 +104,11 @@ fi
 
 token=`awk -F ' ' '{print $1}' <<< $out`
 
+# Set defaults for profiles
+
+defregion=$1
+defoutput="json"
+
 # Retrieve accounts first
 
 echo -n "Retrieving accounts... "
@@ -157,12 +162,14 @@ do
 	    continue
 	fi
 	echo
-	echo -n "CLI default client Region [None]: "
+	echo -n "CLI default client Region [$defregion]: "
 	read awsregion < /dev/tty
-	if [ -z $awsregion ]; then awsregion="None" ; fi
-	echo -n "CLI default output format [None]: "
+	if [ -z $awsregion ]; then awsregion=$defregion ; fi
+	defregion=$awsregion
+	echo -n "CLI default output format [$defoutput]: "
 	read output < /dev/tty
-	if [ -z $output ]; then output="None" ; fi
+	if [ -z $output ]; then output=$defoutput ; fi
+	defoutput=$output
 	p="$rolename-$acctnum"
 	while [ true ]; do
 	    echo -n "CLI profile name [$p]: "
