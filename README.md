@@ -4,16 +4,16 @@ The AWS SSO Profile Tool is a script that helps create profiles for all the
 accounts/roles you have access to as an AWS SSO user.  It can be thought of as
 `aws configure sso` on steroids.
 
-When you run the tool, you will be asked to log into AWS using in your browser,
-after which the tool will walk through each account/role pair, giving you an
-opportunity to create a profile if desired.  Once these profiles are created,
-you can use them by specifying the profile name as an argument to the
-'--profile' command line option.
+When you run the tool, you will be asked to log into AWS SSO using in your
+browser, after which the tool will walk through each account/role pair, giving
+you an opportunity to create a profile if desired.  Once these profiles are
+created, you can use them by specifying the profile name as an argument to the
+'--profile' command line option (e.g., `aws s3 ls --profile my_prfile`).
 
-Note that you will always have to login to
-log into AWS SSO using the `aws sso login` command before you can use any AWS
-SSO profile, but once you've logged in once, you will be able to use any of the
-created profiles until your auth token expires.
+**Note:** You will always have to login to AWS SSO using the `aws sso login`
+command before you can use any AWS SSO profile. However, once you have logged
+in once, you will be able to use any of the created profiles until your
+authorization token expires.
 
 ### Installation
 
@@ -24,17 +24,17 @@ the following methods:
 * Clone the repository
 * Download the ZIP file and unzip
 * Copy and paste the script into a file
-2. (Optional) Set the script as executable using `chmod +x
-awsssoprofiletool.sh`
+2. (Optional) Make the awsssoprofiletool.sh script as executable using
+`chmod +x awsssoprofiletool.sh`
 
 ### Running
 
 To run the script, do one of the following:
 
-* If the script is executable, run it with `awsssoprofiletool.sh
-&lt;region&gt; &lt;start_url&gt; [&lt;profile_file&gt;]`
+* If the script is executable, run it with `./awsssoprofiletool.sh
+<region> <start_url> [<profile_file>]`
 * If the script is not executable, run it with  `bash awsssoprofiletool.sh
-&lt;region&gt; &lt;start_url&gt; [&lt;profile_file&gt;]`
+<region> <start_url> [<profile_file>]`
 
 The arguments are as follows:
 
