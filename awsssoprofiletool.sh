@@ -209,7 +209,10 @@ do
 done < $acctsfile
 rm $acctsfile
 
-echo "Processing complete.  Added the following profiles to $profilefile:"
+echo
+echo "Processing complete."
+echo
+echo "Added the following profiles to $profilefile:"
 echo
 
 for i in "${created_profiles[@]}"
