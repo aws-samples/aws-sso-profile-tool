@@ -132,6 +132,10 @@ declare -a created_profiles
 
 # Read in accounts
 
+echo "###" >> $profilefile
+echo "### The section below added by awsssoprofiletool.sh" >> $profilefile
+echo "###" >> $profilefile
+
 while IFS=$'\t' read skip acctnum acctname acctowner;
 do
     echo
@@ -208,6 +212,11 @@ do
 
 done < $acctsfile
 rm $acctsfile
+
+echo >> $profilefile
+echo "###" >> $profilefile
+echo "### The section above added by awsssoprofiletool.sh" >> $profilefile
+echo "###" >> $profilefile
 
 echo
 echo "Processing complete."
