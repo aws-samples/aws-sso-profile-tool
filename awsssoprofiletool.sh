@@ -109,8 +109,29 @@ token=`awk -F ' ' '{print $1}' <<< $out`
 defregion=$1
 defoutput="json"
 
+# Batch or interactive
+
+echo
+echo "$0 can create all profiles with default values"
+echo "or it can prompt you regarding each profile before it gets created."
+echo
+echo -n  "Would you like to be prompted for each profile? (Y/n): "
+read resp < /dev/tty
+if [ -z $resp ];
+then
+    interactive=true
+elif [ $resp == 'n' ] || [ $resp == 'N' ];
+then
+    interactive=false
+    awsregion=$defregion
+    output=$defoutput
+else
+    interactive=true
+fi
+
 # Retrieve accounts first
 
+echo
 echo -n "Retrieving accounts... "
 
 acctsfile="$(mktemp ./sso.accts.XXXXXX)"
@@ -130,11 +151,11 @@ fi
 
 declare -a created_profiles
 
-# Read in accounts
-
 echo "###" >> $profilefile
 echo "### The section below added by awsssoprofiletool.sh" >> $profilefile
 echo "###" >> $profilefile
+
+# Read in accounts
 
 while IFS=$'\t' read skip acctnum acctname acctowner;
 do
@@ -156,34 +177,44 @@ do
     while IFS=$'\t' read junk junk rolename;
     do
 	echo
-	echo -n "Create a profile for $rolename role? (Y/n): "
-	read create < /dev/tty
-	if [ -z $create ];
+	if $interactive ;
 	then
-	    :
-	elif [ $create == 'n' ] || [ $create == 'N' ];
-	then
-	    continue
-	fi
-	echo
-	echo -n "CLI default client Region [$defregion]: "
-	read awsregion < /dev/tty
-	if [ -z $awsregion ]; then awsregion=$defregion ; fi
-	defregion=$awsregion
-	echo -n "CLI default output format [$defoutput]: "
-	read output < /dev/tty
-	if [ -z $output ]; then output=$defoutput ; fi
-	defoutput=$output
-	p="$rolename-$acctnum"
-	while [ true ]; do
-	    echo -n "CLI profile name [$p]: "
-	    read profilename < /dev/tty
-	    if [ -z $profilename ]; then profilename=$p ; fi
-	    if [ -f $profilefile ];
+	    echo -n "Create a profile for $rolename role? (Y/n): "
+	    read create < /dev/tty
+	    if [ -z $create ];
 	    then
 		:
+	    elif [ $create == 'n' ] || [ $create == 'N' ];
+	    then
+		continue
+	    fi
+	    
+	    echo
+	    echo -n "CLI default client Region [$defregion]: "
+	    read awsregion < /dev/tty
+	    if [ -z $awsregion ]; then awsregion=$defregion ; fi
+	    defregion=$awsregion
+	    echo -n "CLI default output format [$defoutput]: "
+	    read output < /dev/tty
+	    if [ -z $output ]; then output=$defoutput ; fi
+	    defoutput=$output
+	fi
+	
+	p="$rolename-$acctnum"
+	while [ true ]; do
+	    if $interactive ;
+	    then
+		echo -n "CLI profile name [$p]: "
+		read profilename < /dev/tty
+		if [ -z $profilename ]; then profilename=$p ; fi
+		if [ -f $profilefile ];
+		then
+		    :
+		else
+		    break
+		fi
 	    else
-		break
+		profilename=$p
 	    fi
 	    
 	    if [ `grep -ce "^\s*\[\s*profile\s\s*$profilename\s*\]" $profilefile` -eq 0 ];
@@ -191,6 +222,13 @@ do
 		break
 	    else
 		echo "Profile name already exists!"
+		if $interactive ;
+		then
+		    :
+		else
+		    echo "Skipping..."
+		    continue 2
+		fi
 	    fi
 	done
 	echo -n "Creating $profilename... "
