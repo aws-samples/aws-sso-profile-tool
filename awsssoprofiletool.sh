@@ -151,6 +151,7 @@ fi
 
 declare -a created_profiles
 
+echo "" >> $profilefile
 echo "###" >> $profilefile
 echo "### The section below added by awsssoprofiletool.sh" >> $profilefile
 echo "###" >> $profilefile
