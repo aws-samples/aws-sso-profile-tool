@@ -9,12 +9,13 @@ you the ability to create all possible profiles in one go.  Think of it as `aws 
 
 When you run the tool, you will be asked to log into AWS SSO using your
 browser.  Once you login, the tool will walk through each account/role pair, giving
-you an opportunity to create a profile if desired.  The profiles will be appended
+you an opportunity to create a profile if desired.  You can also have the tool create profiles for all account/role
+pairs using default information.  The profiles will be appended
 to file you provide as an argument or your default config file if no file name is
 provided.
 
 Once these profiles are created, you can use them by specifying the profile name
-as an argument to the '--profile' command line option (e.g., `aws s3 ls --profile my_prfile`).
+as an argument to the '--profile' command line option (e.g., `aws s3 ls --profile my_profile`).
 
 **Note:** You will always have to login to AWS SSO using the `aws sso login`
 command before you can use any AWS SSO profile. However, once you have logged

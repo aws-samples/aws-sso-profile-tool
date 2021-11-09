@@ -44,6 +44,12 @@ else
     profilefile=$PROFILEFILE
 fi
 
+if [[ `aws --version` == aws-cli/1* ]]
+then
+    echo "ERROR: $0 requires AWS CLI v2 or higher"
+    exit 1
+fi
+
 # Get secret and client ID to begin authentication session
 
 echo
