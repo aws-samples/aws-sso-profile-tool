@@ -86,11 +86,11 @@ regurl=$(awk -F ' ' '{print $6}' <<< "$out")
 devicecode=$(awk -F ' ' '{print $1}' <<< "$out")
 
 echo
-echo "Open the following URL in your browser and sign in, then click Authorize:"
+echo "Open the following URL in your browser and sign in, then click the Allow button:"
 echo
 echo "$regurl"
 echo
-echo "Press <ENTER> after you have signed into AWS CLI to continue..."
+echo "Press <ENTER> after you have signed in to continue..."
 
 read continue
 
