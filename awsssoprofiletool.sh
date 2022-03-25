@@ -44,7 +44,7 @@ else
     profilefile=$PROFILEFILE
 fi
 
-if [[ `aws --version` == aws-cli/1* ]]
+if [[ $(aws --version) == aws-cli/1* ]]
 then
     echo "ERROR: $0 requires AWS CLI v2 or higher"
     exit 1
@@ -55,7 +55,7 @@ fi
 echo
 echo -n "Registering client... "
 
-out=`aws sso-oidc register-client --client-name 'profiletool' --client-type 'public' --region $1 --output text`
+out=$(aws sso-oidc register-client --client-name 'profiletool' --client-type 'public' --region "$1" --output text)
 
 if [ $? -ne 0 ];
 then
@@ -65,14 +65,14 @@ else
     echo "Succeeded"
 fi
 
-secret=`awk -F ' ' '{print $3}' <<< $out`
-clientid=`awk -F ' ' '{print $1}' <<< $out`
+secret=$(awk -F ' ' '{print $3}' <<< "$out")
+clientid=$(awk -F ' ' '{print $1}' <<< "$out")
 
 # Start the authentication process
 
 echo -n "Starting device authorization... "
 
-out=`aws sso-oidc start-device-authorization --client-id "$clientid" --client-secret "$secret" --start-url "$2" --region $1 --output text`
+out=$(aws sso-oidc start-device-authorization --client-id "$clientid" --client-secret "$secret" --start-url "$2" --region "$1" --output text)
 
 if [ $? -ne 0 ];
 then
@@ -82,11 +82,11 @@ else
     echo "Succeeded"
 fi
 
-regurl=`awk -F ' ' '{print $6}' <<< $out`
-devicecode=`awk -F ' ' '{print $1}' <<< $out`
+regurl=$(awk -F ' ' '{print $6}' <<< "$out")
+devicecode=$(awk -F ' ' '{print $1}' <<< "$out")
 
 echo
-echo "Open the following URL in your browser and sign in:"
+echo "Open the following URL in your browser and sign in, then click Authorize:"
 echo
 echo "$regurl"
 echo
@@ -98,7 +98,7 @@ read continue
 
 echo -n "Getting access token... "
 
-out=`aws sso-oidc create-token --client-id "$clientid" --client-secret "$secret" --grant-type 'urn:ietf:params:oauth:grant-type:device_code' --device-code "$devicecode" --region $1 --output text`
+out=$(aws sso-oidc create-token --client-id "$clientid" --client-secret "$secret" --grant-type 'urn:ietf:params:oauth:grant-type:device_code' --device-code "$devicecode" --region "$1" --output text)
 
 if [ $? -ne 0 ];
 then
@@ -108,11 +108,11 @@ else
     echo "Succeeded"
 fi
 
-token=`awk -F ' ' '{print $1}' <<< $out`
+token=$(awk -F ' ' '{print $1}' <<< "$out")
 
 # Set defaults for profiles
 
-defregion=$1
+defregion="$1"
 defoutput="json"
 
 # Batch or interactive
@@ -123,10 +123,10 @@ echo "or it can prompt you regarding each profile before it gets created."
 echo
 echo -n  "Would you like to be prompted for each profile? (Y/n): "
 read resp < /dev/tty
-if [ -z $resp ];
+if [ -z "$resp" ];
 then
     interactive=true
-elif [ $resp == 'n' ] || [ $resp == 'N' ];
+elif [ "$resp" == 'n' ] || [ "$resp" == 'N' ];
 then
     interactive=false
     awsregion=$defregion
@@ -143,9 +143,9 @@ echo -n "Retrieving accounts... "
 acctsfile="$(mktemp ./sso.accts.XXXXXX)"
 
 # Set up trap to clean up temp file
-trap "{ rm -f $acctsfile; echo; exit 255; }" SIGINT SIGTERM
+trap '{ rm -f "$acctsfile"; echo; exit 255; }' SIGINT SIGTERM
     
-aws sso list-accounts --access-token "$token" --page-size $ACCOUNTPAGESIZE --region $1 --output text > $acctsfile
+aws sso list-accounts --access-token "$token" --page-size $ACCOUNTPAGESIZE --region "$1" --output text > "$acctsfile"
 
 if [ $? -ne 0 ];
 then
@@ -157,10 +157,10 @@ fi
 
 declare -a created_profiles
 
-echo "" >> $profilefile
-echo "###" >> $profilefile
-echo "### The section below added by awsssoprofiletool.sh" >> $profilefile
-echo "###" >> $profilefile
+echo "" >> "$profilefile"
+echo "###" >> "$profilefile"
+echo "### The section below added by awsssoprofiletool.sh" >> "$profilefile"
+echo "###" >> "$profilefile"
 
 # Read in accounts
 
@@ -171,9 +171,9 @@ do
     rolesfile="$(mktemp ./sso.roles.XXXXXX)"
 
     # Set up trap to clean up both temp files
-    trap "{ rm -f $rolesfile $acctsfile; echo; exit 255; }" SIGINT SIGTERM
+    trap '{ rm -f "$rolesfile" "$acctsfile"; echo; exit 255; }' SIGINT SIGTERM
     
-    aws sso list-account-roles --account-id $acctnum --access-token "$token" --page-size $ROLEPAGESIZE --region $1 --output text > $rolesfile
+    aws sso list-account-roles --account-id "$acctnum" --access-token "$token" --page-size $ROLEPAGESIZE --region "$1" --output text > "$rolesfile"
 
     if [ $? -ne 0 ];
     then
@@ -188,10 +188,10 @@ do
 	then
 	    echo -n "Create a profile for $rolename role? (Y/n): "
 	    read create < /dev/tty
-	    if [ -z $create ];
+	    if [ -z "$create" ];
 	    then
 		:
-	    elif [ $create == 'n' ] || [ $create == 'N' ];
+	    elif [ "$create" == 'n' ] || [ "$create" == 'N' ];
 	    then
 		continue
 	    fi
@@ -199,22 +199,22 @@ do
 	    echo
 	    echo -n "CLI default client Region [$defregion]: "
 	    read awsregion < /dev/tty
-	    if [ -z $awsregion ]; then awsregion=$defregion ; fi
+	    if [ -z "$awsregion" ]; then awsregion=$defregion ; fi
 	    defregion=$awsregion
 	    echo -n "CLI default output format [$defoutput]: "
 	    read output < /dev/tty
-	    if [ -z $output ]; then output=$defoutput ; fi
+	    if [ -z "$output" ]; then output=$defoutput ; fi
 	    defoutput=$output
 	fi
 	
 	p="$rolename-$acctnum"
-	while [ true ]; do
+	while true ; do
 	    if $interactive ;
 	    then
 		echo -n "CLI profile name [$p]: "
 		read profilename < /dev/tty
-		if [ -z $profilename ]; then profilename=$p ; fi
-		if [ -f $profilefile ];
+		if [ -z "$profilename" ]; then profilename=$p ; fi
+		if [ -f "$profilefile" ];
 		then
 		    :
 		else
@@ -224,7 +224,7 @@ do
 		profilename=$p
 	    fi
 	    
-	    if [ `grep -ce "^\s*\[\s*profile\s\s*$profilename\s*\]" $profilefile` -eq 0 ];
+	    if [ $(grep -ce "^\s*\[\s*profile\s\s*$profilename\s*\]" "$profilefile") -eq 0 ];
 	    then
 		break
 	    else
@@ -239,29 +239,29 @@ do
 	    fi
 	done
 	echo -n "Creating $profilename... "
-	echo "" >> $profilefile
-	echo "[profile $profilename]" >> $profilefile
-	echo "sso_start_url = $2" >> $profilefile
-	echo "sso_region = $1" >> $profilefile
-	echo "sso_account_id = $acctnum" >> $profilefile
-	echo "sso_role_name = $rolename" >> $profilefile
-	echo "region = $awsregion" >> $profilefile
-	echo "output = $output" >> $profilefile
+	echo "" >> "$profilefile"
+	echo "[profile $profilename]" >> "$profilefile"
+	echo "sso_start_url = $2" >> "$profilefile"
+	echo "sso_region = $1" >> "$profilefile"
+	echo "sso_account_id = $acctnum" >> "$profilefile"
+	echo "sso_role_name = $rolename" >> "$profilefile"
+	echo "region = $awsregion" >> "$profilefile"
+	echo "output = $output" >> "$profilefile"
 	echo "Succeeded"
 	created_profiles+=("$profilename")
-    done < $rolesfile
-    rm $rolesfile
+    done < "$rolesfile"
+    rm "$rolesfile"
 
     echo
     echo "Done adding roles for AWS account $acctnum ($acctname)"
 
-done < $acctsfile
-rm $acctsfile
+done < "$acctsfile"
+rm "$acctsfile"
 
-echo >> $profilefile
-echo "###" >> $profilefile
-echo "### The section above added by awsssoprofiletool.sh" >> $profilefile
-echo "###" >> $profilefile
+echo >> "$profilefile"
+echo "###" >> "$profilefile"
+echo "### The section above added by awsssoprofiletool.sh" >> "$profilefile"
+echo "###" >> "$profilefile"
 
 echo
 echo "Processing complete."
@@ -271,7 +271,7 @@ echo
 
 for i in "${created_profiles[@]}"
 do
-    echo $i
+    echo "$i"
 done
 echo
 exit 0
