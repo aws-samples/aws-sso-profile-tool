@@ -11,7 +11,7 @@ When you run the tool, you will be asked to log into AWS SSO using your
 browser.  Once you login, the tool will walk through each account/role pair, giving
 you an opportunity to create a profile if desired.  You can also have the tool create profiles for all account/role
 pairs using default information.  The profiles will be appended
-to file you provide as an argument or your default config file if no file name is
+to the file you provide as an argument or your default config file if no file name is
 provided.
 
 Once these profiles are created, you can use them by specifying the profile name
@@ -31,7 +31,7 @@ the following methods:
 * Clone the repository
 * Download the ZIP file and unzip
 * Copy and paste the script into a file
-2. (Optional) Make the awsssoprofiletool.sh script as executable using
+2. (Optional) Mark the awsssoprofiletool.sh script as executable using
 `chmod +x awsssoprofiletool.sh`
 
 ### Running
