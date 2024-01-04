@@ -207,9 +207,7 @@ do
 	    if [ -z "$output" ]; then output=$defoutput ; fi
 	    defoutput=$output
 	fi
-	# This sets the profile name in the cli
 	p="$rolename-$acctnum"
-	# p="$(echo $profilename | tr '[:upper:]' '[:lower:]')"
 
 	while true ; do
 	    if $interactive ;
@@ -243,8 +241,9 @@ do
 	done
 	echo -n "Creating $profilename... "
 	echo "" >> "$profilefile"
+ 	# The below sets the profile name in the cli
 	# echo "[profile $profilename]" >> "$profilefile"
-	# Use acctname for profile name, convert to lowercase
+	# Use acctname for profile name, convert spaces to dash and all to lowercase
 	echo "[profile $(echo $acctname | tr ' ' '-' | tr '[:upper:]' '[:lower:]')]" >> "$profilefile"
 	echo "sso_start_url = $2" >> "$profilefile"
 	echo "sso_region = $1" >> "$profilefile"
